@@ -1,47 +1,86 @@
-#include "keypad.h"
+#include "Keypad.h"
 
-Keypad::Keypad(uint8_t r1, uint8_t r2, uint8_t r3, uint8_t r4,
-               uint8_t c1, uint8_t c2, uint8_t c3, uint8_t c4)
+Keypad::Keypad(uint8_t row1, uint8_t row2, uint8_t row3, uint8_t row4,
+               uint8_t col1, uint8_t col2, uint8_t col3, uint8_t col4)
 {
-    rowPins[0] = r1;
-    rowPins[1] = r2;
-    rowPins[2] = r3;
-    rowPins[3] = r4;
-    colPins[0] = c1;
-    colPins[1] = c2;
-    colPins[2] = c3;
-    colPins[3] = c4;
+    // Initialize row and column pin arrays
+    rowPins[0] = row1;
+    rowPins[1] = row2;
+    rowPins[2] = row3;
+    rowPins[3] = row4;
+    colPins[0] = col1;
+    colPins[1] = col2;
+    colPins[2] = col3;
+    colPins[3] = col4;
 
-    for (int i = 0; i < 4; i++)
+    // Define the key layout (can be customized as per the actual keypad layout)
+    keys[0][0] = '1';
+    keys[0][1] = '2';
+    keys[0][2] = '3';
+    keys[0][3] = '4';
+    keys[1][0] = '5';
+    keys[1][1] = '6';
+    keys[1][2] = '7';
+    keys[1][3] = '8';
+    keys[2][0] = '9';
+    keys[2][1] = 'A';
+    keys[2][2] = 'B';
+    keys[2][3] = 'C';
+    keys[3][0] = 'D';
+    keys[3][1] = 'E';
+    keys[3][2] = 'F';
+    keys[3][3] = 'G';
+
+    // Set row pins as outputs
+    for (uint8_t i = 0; i < 4; i++)
     {
-        PinUtils::setPinMode(rowPins[i], INPUT);
-        PinUtils::setPinMode(colPins[i], OUTPUT);
-        PinUtils::digitalWritePin(colPins[i], HIGH);
+        PinUtils::setPinMode(rowPins[i], OUTPUT);
     }
+
+    // Set column pins as inputs with pull-up resistors
+    for (uint8_t i = 0; i < 4; i++)
+    {
+        PinUtils::setPinMode(colPins[i], INPUT);
+        PinUtils::digitalWritePin(colPins[i], HIGH); // Enable pull-up
+    }
+}
+
+void Keypad::setRowLow(uint8_t row)
+{
+    PinUtils::digitalWritePin(rowPins[row], LOW);
+}
+
+void Keypad::setRowHigh(uint8_t row)
+{
+    PinUtils::digitalWritePin(rowPins[row], HIGH);
+}
+
+bool Keypad::isColumnPressed(uint8_t col)
+{
+    return (PinUtils::digitalReadPin(colPins[col]) == LOW); // Check if the column is pressed
 }
 
 char Keypad::getKey()
 {
-    for (int c = 0; c < 4; c++)
+    for (uint8_t r = 0; r < 4; r++)
     {
-        PinUtils::digitalWritePin(colPins[c], LOW); // Set column low
-        for (int r = 0; r < 4; r++)
+        // Set the current row to low
+        setRowLow(r);
+
+        for (uint8_t c = 0; c < 4; c++)
         {
-            int rowState = PinUtils::digitalReadPin(rowPins[r]);
-            if (rowState == LOW) // If row is LOW, key is pressed
+            if (isColumnPressed(c))
             {
-                _delay_ms(300); // Debounce delay
-                if (PinUtils::digitalReadPin(rowPins[r]) == LOW)
-                {
-                    while (PinUtils::digitalReadPin(rowPins[r]) == LOW)
-                    {
-                    } // Wait for release
-                    PinUtils::digitalWritePin(colPins[c], HIGH); // Reset column to HIGH
-                    return keys[r][c];                           // Return the pressed key
-                }
+                _delay_ms(300); // Debounce
+                setRowHigh(r);  // Set the row back to high before returning
+
+                return keys[r][c]; // Return the pressed key
             }
         }
-        PinUtils::digitalWritePin(colPins[c], HIGH); // Reset column to HIGH
+
+        // Set the row back to high
+        setRowHigh(r);
     }
-    return 0; // No key pressed
+
+    return '\0'; // Return null character if no key is pressed
 }

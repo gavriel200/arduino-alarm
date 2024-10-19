@@ -8,8 +8,8 @@
 #define BLUE_LED_4 A3
 #define RED_LED A4
 #define BUZZER A5
-#define TRIG_PIN 4
-#define ECHO_PIN 3
+#define TRIG_PIN 3
+#define ECHO_PIN 2
 #define ROW_1 8
 #define ROW_2 7
 #define ROW_3 6

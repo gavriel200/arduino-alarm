@@ -11,6 +11,7 @@ class Logger
 public:
     static void init();
     static void log(const char *message);
+    static void log(char value);
     static void log(int value);
     static void log(unsigned int value);
     static void log(long value);

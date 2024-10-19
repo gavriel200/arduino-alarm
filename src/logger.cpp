@@ -21,6 +21,13 @@ void Logger::log(const char *message)
     }
 }
 
+void Logger::log(char value)
+{
+    while (!(UCSR0A & (1 << UDRE0)))
+        ;
+    UDR0 = value;
+}
+
 void Logger::log(int value)
 {
     char buffer[20];

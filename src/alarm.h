@@ -37,6 +37,7 @@ private:
     bool checkPassword();
     void measureAverageDistance();
     void turnOffBlueLeds(); // New method
+    void alarmBuzz(int times);
 
 public:
     Alarm(uint8_t blueLed1, uint8_t blueLed2, uint8_t blueLed3, uint8_t blueLed4,
