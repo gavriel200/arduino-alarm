@@ -1,48 +1,49 @@
 #ifndef ALARM_H
 #define ALARM_H
 
-#include "Logger.h"
-#include "Ultrasonic.h"
-#include "Keypad.h"
 #include "led.h"
-#include "Timer.h"
+#include "buzzer.h"
+#include "ultrasonic.h"
+#include "keypad.h"
+#include "logger.h"
+#include "timer.h"
 
-enum AlarmMode
+enum AlarmState
 {
-    ON_START,
+    STARTUP,
     STANDBY,
-    WATCH_COUNTDOWN,
-    WATCH,
+    WATCHING,
     PRE_ALERT,
     ALERT
 };
 
 class Alarm
 {
-public:
-    Alarm();
-    void setup();
-    void loop();
-
 private:
-    Logger logger;
-    Timer timer;
-    Ultrasonic ultrasonic;
+    LED blueLeds[4];
+    LED redLed;
+    Buzzer buzzer;
+    Ultrasonic ultrasonicSensor;
     Keypad keypad;
-    Led blue1, blue2, blue3, blue4, red, buzzer;
-
+    AlarmState currentState;
     char password[5];
-    char enteredPassword[5];
-    int passwordIndex;
-    AlarmMode mode;
+    float averageDistance;
 
-    void setPassword();
-    void enterPassword();
+    void handleStartup();
+    void handleStandby();
+    void handleWatching();
+    void handlePreAlert();
+    void handleAlert();
     bool checkPassword();
-    void blinkRedLED();
-    void turnOffAllLEDs();
-    void updateLEDs();
-    void activateBuzzer();
+    void measureAverageDistance();
+    void turnOffBlueLeds(); // New method
+
+public:
+    Alarm(uint8_t blueLed1, uint8_t blueLed2, uint8_t blueLed3, uint8_t blueLed4,
+          uint8_t redLed, uint8_t buzzer, uint8_t trigPin, uint8_t echoPin,
+          uint8_t r1, uint8_t r2, uint8_t r3, uint8_t r4,
+          uint8_t c1, uint8_t c2, uint8_t c3, uint8_t c4);
+    void run();
 };
 
-#endif // ALARM_H
+#endif

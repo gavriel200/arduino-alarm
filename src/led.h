@@ -1,17 +1,12 @@
 #ifndef LED_H
 #define LED_H
 
-#include "pinUtils.h"
+#include "onOffDevice.h"
 
-class Led
+class LED : public OnOffDevice
 {
-private:
-    uint8_t pin;
-
 public:
-    Led(uint8_t pin);
-    void turnOn();
-    void turnOff();
+    LED(uint8_t pin);
 };
 
 #endif

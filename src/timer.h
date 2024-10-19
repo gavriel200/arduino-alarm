@@ -2,22 +2,18 @@
 #define TIMER_H
 
 #include <stdint.h>
+#include <avr/io.h>
+#include <avr/interrupt.h>
 
 class Timer
 {
-public:
-    Timer();
-    void reset();
-    uint32_t elapsed();
-    uint32_t elapsedMicros();
-    void delay(uint32_t ms);
-    void delayMicros(uint32_t us);
-    uint32_t getMillis();
-    uint32_t getMicros();
-
 private:
-    uint32_t startTime;
-    uint8_t startTimeFract;
+    static volatile uint32_t milliseconds;
+
+public:
+    static void init();
+    static uint32_t getMillis();
+    static void incrementMillis();
 };
 
-#endif // TIMER_H
+#endif

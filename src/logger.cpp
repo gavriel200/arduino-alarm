@@ -1,57 +1,57 @@
-#include "Logger.h"
+#include "logger.h"
 
-Logger::Logger(uint16_t baud_rate)
+#define BAUD 9600
+#define UBRR_VALUE ((F_CPU / 16 / BAUD) - 1)
+
+void Logger::init()
 {
-    setupBaudRate(baud_rate);
-}
-
-Logger::Logger()
-{
-    setupBaudRate(9600);
-}
-
-void Logger::setupBaudRate(uint16_t baud_rate)
-{
-    uint16_t ubrr_value = (F_CPU / 16 / baud_rate) - 1;
-
-    // Set high and low bytes of UBRR
-    UBRR0H = (ubrr_value >> 8);
-    UBRR0L = ubrr_value;
-
-    UCSR0B = (1 << TXEN0); // Enable transmitter
-
-    // Set frame format: 8 data bits, 1 stop bit, no parity
+    UBRR0H = (uint8_t)(UBRR_VALUE >> 8);
+    UBRR0L = (uint8_t)UBRR_VALUE;
+    UCSR0B = (1 << TXEN0);
     UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);
 }
 
-void Logger::log(const char *str)
+void Logger::log(const char *message)
 {
-    while (*str)
+    while (*message)
     {
-        this->uartTransmit(*str);
-        str++;
+        while (!(UCSR0A & (1 << UDRE0)))
+            ;
+        UDR0 = *message++;
     }
 }
 
-void Logger::log(char str)
+void Logger::log(int value)
 {
-    this->uartTransmit(str);
+    char buffer[20];
+    snprintf(buffer, sizeof(buffer), "%d", value);
+    log(buffer);
 }
 
-void Logger::log(uint16_t data)
+void Logger::log(unsigned int value)
 {
-    char buffer[6];
-    itoa(data, buffer, 10);
-    this->log(buffer);
+    char buffer[20];
+    snprintf(buffer, sizeof(buffer), "%u", value);
+    log(buffer);
 }
 
-void Logger::uartTransmit(char data)
+void Logger::log(long value)
 {
-    // Wait for transmit buffer to be empty
-    while (!(UCSR0A & (1 << UDRE0)))
-    {
-    }
+    char buffer[20];
+    snprintf(buffer, sizeof(buffer), "%ld", value);
+    log(buffer);
+}
 
-    // Put data into the buffer, this sends the data
-    UDR0 = data;
+void Logger::log(unsigned long value)
+{
+    char buffer[20];
+    snprintf(buffer, sizeof(buffer), "%lu", value);
+    log(buffer);
+}
+
+void Logger::log(float value, uint8_t precision)
+{
+    char buffer[20];
+    dtostrf(value, 0, precision, buffer);
+    log(buffer);
 }
