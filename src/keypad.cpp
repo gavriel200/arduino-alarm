@@ -24,20 +24,24 @@ char Keypad::getKey()
 {
     for (int c = 0; c < 4; c++)
     {
-        PinUtils::digitalWritePin(colPins[c], LOW);
+        PinUtils::digitalWritePin(colPins[c], LOW); // Set column low
         for (int r = 0; r < 4; r++)
         {
-            if (PinUtils::digitalReadPin(rowPins[r]) == LOW)
+            int rowState = PinUtils::digitalReadPin(rowPins[r]);
+            if (rowState == LOW) // If row is LOW, key is pressed
             {
-                _delay_ms(300); // Debounce
+                _delay_ms(300); // Debounce delay
                 if (PinUtils::digitalReadPin(rowPins[r]) == LOW)
                 {
-                    PinUtils::digitalWritePin(colPins[c], HIGH);
-                    return keys[r][c];
+                    while (PinUtils::digitalReadPin(rowPins[r]) == LOW)
+                    {
+                    } // Wait for release
+                    PinUtils::digitalWritePin(colPins[c], HIGH); // Reset column to HIGH
+                    return keys[r][c];                           // Return the pressed key
                 }
             }
         }
-        PinUtils::digitalWritePin(colPins[c], HIGH);
+        PinUtils::digitalWritePin(colPins[c], HIGH); // Reset column to HIGH
     }
-    return 0;
+    return 0; // No key pressed
 }
