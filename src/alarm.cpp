@@ -102,9 +102,9 @@ void Alarm::handleWatching()
     Logger::log("Average distance: ");
     Logger::log(averageDistance);
     Logger::log(" cm\n");
-    Logger::log("WATCHING!\n")
+    Logger::log("WATCHING!\n");
 
-        while (currentState == WATCHING)
+    while (currentState == WATCHING)
     {
         float currentDistance = ultrasonicSensor.measureDistance();
         if (currentDistance < averageDistance * 0.5)
