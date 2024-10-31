@@ -164,7 +164,7 @@ bool Alarm::checkPassword()
             Logger::log(key);
             Logger::log(", ");
             enteredPassword[passwordIndex] = key;
-            blueLeds[passwordIndex].on(); // Turn on LED and keep it on
+            blueLeds[passwordIndex].on();
             passwordIndex++;
         }
     }
