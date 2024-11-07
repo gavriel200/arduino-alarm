@@ -10,9 +10,10 @@ class Ultrasonic
 private:
     uint8_t trigPin;
     uint8_t echoPin;
+    uint8_t powerPin;
 
 public:
-    Ultrasonic(uint8_t trigPin, uint8_t echoPin);
+    Ultrasonic(uint8_t trigPin, uint8_t echoPin, uint8_t powerPin);
     float measureDistance();
 };
 

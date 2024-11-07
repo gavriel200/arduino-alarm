@@ -41,7 +41,7 @@ private:
 
 public:
     Alarm(uint8_t blueLed1, uint8_t blueLed2, uint8_t blueLed3, uint8_t blueLed4,
-          uint8_t redLed, uint8_t buzzer, uint8_t trigPin, uint8_t echoPin,
+          uint8_t redLed, uint8_t buzzer, uint8_t trigPin, uint8_t echoPin, uint8_t powerPin,
           uint8_t r1, uint8_t r2, uint8_t r3, uint8_t r4,
           uint8_t c1, uint8_t c2, uint8_t c3, uint8_t c4);
     void run();

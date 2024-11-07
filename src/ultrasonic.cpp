@@ -1,9 +1,12 @@
 #include "ultrasonic.h"
 
-Ultrasonic::Ultrasonic(uint8_t trigPin, uint8_t echoPin) : trigPin(trigPin), echoPin(echoPin)
+Ultrasonic::Ultrasonic(uint8_t trigPin, uint8_t echoPin, uint8_t powerPin) : trigPin(trigPin), echoPin(echoPin), powerPin(powerPin)
 {
     PinUtils::setPinMode(trigPin, OUTPUT);
     PinUtils::setPinMode(echoPin, INPUT);
+    PinUtils::setPinMode(powerPin, OUTPUT);
+
+    PinUtils::digitalWritePin(powerPin, HIGH);
 }
 
 float Ultrasonic::measureDistance()
