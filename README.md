@@ -82,16 +82,11 @@ The system uses the following pin connections:
 ## Installation and Setup
 
 ### Using PlatformIO
-1. Install PlatformIO IDE
-2. Create a new project for Arduino Uno
-3. Copy the provided code files into your project
-4. Install required dependencies
+1. Pull the git repo
+2. Connect the PlatfromIO to the project
+3. Connect the right components to the Arduino
+4. Configure the right pins
 5. Build and upload to your Arduino
-
-### Required Files
-- `alarm.h` - Header file containing class definitions
-- `alarm.cpp` - Main implementation file
-- Additional helper classes (`LED`, `Logger`, `Timer`, `UltrasonicSensor`)
 
 ## Usage Instructions
 1. Power up the system
@@ -101,23 +96,3 @@ The system uses the following pin connections:
 5. To disarm:
    - Enter correct password during PRE_ALERT or ALERT states
    - System returns to STANDBY mode
-
-## Safety Features
-- 10-second arming delay
-- Pre-alert grace period
-- Visual feedback for password entry
-- Incorrect password indication
-- Continuous monitoring with average distance calculation
-
-## Contributing
-Feel free to fork this project and submit pull requests for any improvements.
-
-## License
-[Specify your chosen license here]
-
-## Author
-[Your name/username here]
-
-## Acknowledgments
-- Thanks to the Arduino community
-- PlatformIO development team
