@@ -36,7 +36,8 @@ private:
     void handleAlert();
     bool checkPassword();
     void measureAverageDistance();
-    void turnOffBlueLeds(); 
+    void turnOnBlueLeds();
+    void turnOffBlueLeds();
     void turnOffAllLights();
     void blinkAllBlueLeds();
     void moveBlueLedsSideToSide();
