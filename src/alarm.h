@@ -36,8 +36,12 @@ private:
     void handleAlert();
     bool checkPassword();
     void measureAverageDistance();
-    void turnOffBlueLeds(); // New method
+    void turnOffBlueLeds(); 
+    void turnOffAllLights();
+    void blinkAllBlueLeds();
+    void moveBlueLedsSideToSide();
     void alarmBuzz(int times);
+    bool stringCompare(const char *str1, const char *str2);
 
 public:
     Alarm(uint8_t blueLed1, uint8_t blueLed2, uint8_t blueLed3, uint8_t blueLed4,

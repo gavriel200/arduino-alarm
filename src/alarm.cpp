@@ -1,19 +1,5 @@
 #include "alarm.h"
 
-bool stringCompare(const char *str1, const char *str2)
-{
-    while (*str1 && *str2)
-    {
-        if (*str1 != *str2)
-        {
-            return false;
-        }
-        str1++;
-        str2++;
-    }
-    return (*str1 == '\0' && *str2 == '\0');
-}
-
 Alarm::Alarm(uint8_t blueLed1, uint8_t blueLed2, uint8_t blueLed3, uint8_t blueLed4,
              uint8_t redLed, uint8_t buzzerPin, uint8_t trigPin, uint8_t echoPin, uint8_t powerPin, uint8_t r1, uint8_t r2, uint8_t r3, uint8_t r4,
              uint8_t c1, uint8_t c2, uint8_t c3, uint8_t c4)
@@ -30,22 +16,22 @@ void Alarm::run()
     Logger::log("Alarm system starting...\n");
     while (true)
     {
-        switch (currentState)
+        switch (this->currentState)
         {
         case STARTUP:
-            handleStartup();
+            this->handleStartup();
             break;
         case STANDBY:
-            handleStandby();
+            this->handleStandby();
             break;
         case WATCHING:
-            handleWatching();
+            this->handleWatching();
             break;
         case PRE_ALERT:
-            handlePreAlert();
+            this->handlePreAlert();
             break;
         case ALERT:
-            handleAlert();
+            this->handleAlert();
             break;
         }
     }
@@ -57,27 +43,27 @@ void Alarm::handleStartup()
     int passwordIndex = 0;
     while (passwordIndex < 4)
     {
-        char key = keypad.getKey();
+        char key = this->keypad.getKey();
         if (key != 0)
         {
             Logger::log(key);
             Logger::log(", ");
-            password[passwordIndex] = key;
-            blueLeds[passwordIndex].on(); // Turn on LED and keep it on
+            this->password[passwordIndex] = key;
+            this->blueLeds[passwordIndex].on(); // Turn on LED and keep it on
             passwordIndex++;
         }
     }
-    password[4] = '\0';
+    this->password[4] = '\0';
     _delay_ms(1000); // Keep LEDs on for a second after password is set
-    turnOffBlueLeds();
+    this->turnOffBlueLeds();
     Logger::log("\nPassword set. Entering STANDBY mode.\n");
-    currentState = STANDBY;
+    this->currentState = STANDBY;
 }
 
 void Alarm::handleStandby()
 {
     Logger::log("STANDBY: Enter password to arm the system.\n");
-    if (checkPassword())
+    if (this->checkPassword())
     {
         Logger::log("\nPassword correct. Arming in 10 seconds...\n");
         for (int i = 10; i > 0; i--)
@@ -89,7 +75,7 @@ void Alarm::handleStandby()
             }
             _delay_ms(1000);
         }
-        currentState = WATCHING;
+        this->currentState = WATCHING;
         Logger::log("\nSystem armed. Entering WATCHING mode.\n");
     }
 }
@@ -97,19 +83,19 @@ void Alarm::handleStandby()
 void Alarm::handleWatching()
 {
     Logger::log("WATCHING: Measuring average distance...\n");
-    measureAverageDistance();
+    this->measureAverageDistance();
     Logger::log("Average distance: ");
-    Logger::log(averageDistance);
+    Logger::log(this->averageDistance);
     Logger::log(" cm\n");
     Logger::log("WATCHING!\n");
 
-    while (currentState == WATCHING)
+    while (this->currentState == WATCHING)
     {
-        float currentDistance = ultrasonicSensor.measureDistance();
-        if (currentDistance < averageDistance * 0.5)
+        float currentDistance = this->ultrasonicSensor.measureDistance();
+        if (currentDistance < this->averageDistance * 0.5)
         {
             Logger::log("Motion detected! Entering PRE_ALERT mode.\n");
-            currentState = PRE_ALERT;
+            this->currentState = PRE_ALERT;
         }
         _delay_ms(100);
     }
@@ -117,32 +103,35 @@ void Alarm::handleWatching()
 
 void Alarm::handlePreAlert()
 {
+    Logger::log("PRE_ALERT: Red LED on.\n");
+    this->redLed.on();
+
     Logger::log("PRE_ALERT: Enter password within 10 seconds.\n");
     uint32_t startTime = Timer::getMillis();
     while (Timer::getMillis() - startTime < 10000)
     {
-        if (checkPassword())
+        if (this->checkPassword())
         {
             Logger::log("\nPassword correct. Returning to STANDBY mode.\n");
-            currentState = STANDBY;
+            this->currentState = STANDBY;
             return;
         }
     }
     Logger::log("Time's up! Entering ALERT mode.\n");
-    currentState = ALERT;
+    this->currentState = ALERT;
 }
 
 void Alarm::handleAlert()
 {
     Logger::log("ALERT: Alarm triggered!\n");
-    while (currentState == ALERT)
+    while (this->currentState == ALERT)
     {
-        alarmBuzz(10);
+        this->alarmBuzz(10);
 
-        if (checkPassword())
+        if (this->checkPassword())
         {
             Logger::log("\nPassword correct. Returning to STANDBY mode.\n");
-            currentState = STANDBY;
+            this->currentState = STANDBY;
         }
     }
 }
@@ -153,17 +142,17 @@ bool Alarm::checkPassword()
     int passwordIndex = 0;
     uint32_t startTime = Timer::getMillis();
 
-    turnOffBlueLeds(); // Ensure all LEDs are off at the start
+    this->turnOffBlueLeds(); // Ensure all LEDs are off at the start
 
     while (passwordIndex < 4 && Timer::getMillis() - startTime < 10000)
     {
-        char key = keypad.getKey();
+        char key = this->keypad.getKey();
         if (key != 0)
         {
             Logger::log(key);
             Logger::log(", ");
             enteredPassword[passwordIndex] = key;
-            blueLeds[passwordIndex].on();
+            this->blueLeds[passwordIndex].on();
             passwordIndex++;
         }
     }
@@ -172,20 +161,20 @@ bool Alarm::checkPassword()
 
     if (passwordIndex < 4)
     {
-        turnOffBlueLeds();
+        this->turnOffBlueLeds();
         return false;
     }
 
-    if (stringCompare(enteredPassword, password))
+    if (this->stringCompare(enteredPassword, this->password))
     {
-        turnOffBlueLeds();
+        this->turnOffBlueLeds();
         return true;
     }
     else
     {
         Logger::log("\nIncorrect password.\n");
-        turnOffBlueLeds();
-        alarmBuzz(4);
+        this->turnOffBlueLeds();
+        this->alarmBuzz(4);
         return false;
     }
 }
@@ -194,8 +183,40 @@ void Alarm::turnOffBlueLeds()
 {
     for (int i = 0; i < 4; i++)
     {
-        blueLeds[i].off();
+        this->blueLeds[i].off();
     }
+}
+
+void Alarm::turnOffAllLights()
+{
+    for (int i = 0; i < 4; i++)
+    {
+        this->blueLeds[i].off();
+    }
+    this->redLed.off();
+}
+
+void Alarm::blinkAllBlueLeds()
+{
+    for (int i = 0; i < 4; i++)
+    {
+        this->blueLeds[i].on();
+    }
+    _delay_ms(500);
+    for (int i = 0; i < 4; i++)
+    {
+        this->blueLeds[i].off();
+    }
+    _delay_ms(500);
+}
+
+void Alarm::moveBlueLedsSideToSide()
+{
+    static int currentIndex = 0;
+    turnOffAllLights();
+    this->blueLeds[currentIndex].on();
+    currentIndex = (currentIndex + 1) % 4;
+    _delay_ms(500);
 }
 
 void Alarm::measureAverageDistance()
@@ -203,21 +224,36 @@ void Alarm::measureAverageDistance()
     float totalDistance = 0;
     for (int i = 0; i < 50; i++)
     {
-        totalDistance += ultrasonicSensor.measureDistance();
+        totalDistance += this->ultrasonicSensor.measureDistance();
         _delay_ms(100);
     }
-    averageDistance = totalDistance / 50;
+    this->averageDistance = totalDistance / 50;
 }
 
 void Alarm::alarmBuzz(int times)
 {
     for (int i = 0; i < times; i++)
     {
-        redLed.on();
-        buzzer.on();
+        this->redLed.on();
+        this->buzzer.on();
         _delay_ms(100);
-        redLed.off();
-        buzzer.off();
+        this->redLed.off();
+        this->buzzer.off();
         _delay_ms(100);
     }
+}
+
+bool Alarm::stringCompare(const char *str1, const char *str2)
+{
+    while (*str1 && *str2)
+    {
+        if (*str1 != *str2)
+        {
+            return false;
+        }
+        str1++;
+        str2++;
+    }
+
+    return (*str1 == '\0' && *str2 == '\0');
 }
